@@ -1,0 +1,44 @@
+# LDPC 配置
+
+# 编码参数
+encoding:
+  n: 504               # 码字长度
+  k: 252               # 信息位长度
+  rate: 0.5            # 码率
+  
+# 矩阵构造
+construction:
+  method: "mackay"     # 可选: "mackay", "peg", "qc_ldpc"
+  regular: true        # 是否为规则码
+  dv: 3                # 变量节点度数(规则码)
+  dc: 6                # 校验节点度数(规则码)
+  
+# 解码参数
+decoding:
+  algorithm: "bp"      # 可选: "bp", "ms", "nms", "oms"
+  max_iterations: 20   # 最大迭代次数 (降低以50提升速度)
+  early_stop: true     # 是否提前停止
+  stop_threshold: 0.0  # 提前停止阈值
+  
+  # Min-Sum算法参数
+  ms_params:
+    normalization_factor: 0.75  # NMS归一化因子
+    offset: 0.5                 # OMS偏移量
+    
+# 性能参数
+performance:
+  snr_range:
+    start: -2.0
+    stop: 6.0
+    step: 0.5
+  num_frames: 1000     # 每个SNR点的帧数
+  max_errors: 100      # 达到此错误数后停止
+  early_stop: true     # 是否提前停止
+  
+# 可视化
+visualization:
+  plot_ber: true
+  plot_fer: true
+  plot_throughput: true
+  plot_tanner_graph: false  # 是否绘制Tanner图
+  save_format: "png"        # 可选: "png", "pdf", "svg"

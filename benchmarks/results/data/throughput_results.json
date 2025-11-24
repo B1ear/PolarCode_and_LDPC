@@ -1,0 +1,28 @@
+{
+  "num_iterations": 100,
+  "snr_db": 3.0,
+  "polar": {
+    "N": 1024,
+    "K": 512,
+    "rate": 0.5,
+    "num_iterations": 100,
+    "encoding_time": 1.666186809539795,
+    "decoding_time": 12.855351448059082,
+    "end_to_end_time": 14.487267971038818,
+    "encoding_throughput": 0.030728847273818936,
+    "decoding_throughput": 0.003982777149801707,
+    "end_to_end_throughput": 0.0035341377064573394
+  },
+  "ldpc": {
+    "n": 504,
+    "k": 252,
+    "rate": 0.5,
+    "num_iterations": 100,
+    "encoding_time": 12.768189191818237,
+    "decoding_time": 316.90729451179504,
+    "end_to_end_time": 311.9947793483734,
+    "encoding_throughput": 0.001973654965588071,
+    "decoding_throughput": 7.951852303943126e-05,
+    "end_to_end_throughput": 8.077058229189687e-05
+  }
+}

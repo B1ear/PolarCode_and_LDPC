@@ -1,0 +1,31 @@
+{
+  "polar": {
+    "N": 1024,
+    "K": 512,
+    "n": 10,
+    "rate": 0.5,
+    "encoding_ops": 10240,
+    "encoding_memory": 2048,
+    "encoding_complexity": "O(N log N) = O(1024 \u00d7 10)",
+    "decoding_ops": 11264,
+    "decoding_memory": 2048,
+    "decoding_complexity": "O(N log N) = O(1024 \u00d7 10)",
+    "scl_ops": 81920,
+    "scl_memory": 16384
+  },
+  "ldpc": {
+    "n": 504,
+    "k": 252,
+    "m": 252,
+    "dv": 3,
+    "dc": 6,
+    "max_iter": 20,
+    "rate": 0.5,
+    "encoding_ops": 63504,
+    "encoding_memory": 127764,
+    "encoding_complexity": "O(m \u00d7 k) = O(252 \u00d7 252)",
+    "decoding_ops": 151200,
+    "decoding_memory": 3528,
+    "decoding_complexity": "O(I \u00d7 (n\u00d7dv + m\u00d7dc)) = O(20 \u00d7 7560)"
+  }
+}

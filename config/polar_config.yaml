@@ -1,0 +1,36 @@
+# Polar Code 配置
+
+# 编码参数
+encoding:
+  N: 1024              # 码长 (必须是2的幂次)
+  K: 512               # 信息位长度
+  use_crc: true        # 是否使用CRC辅助
+  crc_polynomial: "CRC-8"  # CRC多项式
+  
+# 码构造方法
+construction:
+  method: "bhattacharyya"  # 可选: "bhattacharyya", "gaussian_approximation", "monte_carlo"
+  design_snr_db: 2.0       # 设计信噪比
+  
+# 解码参数
+decoding:
+  algorithm: "scl"     # 可选: "sc", "scl", "ca_scl"
+  list_size: 8         # SCL解码列表大小
+  use_llr: true        # 是否使用对数似然比
+  
+# 性能参数
+performance:
+  snr_range:
+    start: -2.0
+    stop: 6.0
+    step: 0.5
+  num_frames: 1000     # 每个SNR点的帧数
+  max_errors: 100      # 达到此错误数后停止
+  early_stop: true     # 是否提前停止
+  
+# 可视化
+visualization:
+  plot_ber: true
+  plot_fer: true
+  plot_throughput: true
+  save_format: "png"   # 可选: "png", "pdf", "svg"
