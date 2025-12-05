@@ -1,28 +1,28 @@
 {
-  "num_iterations": 50,
+  "num_iterations": 200,
   "snr_db": 3.0,
   "polar": {
-    "N": 1024,
-    "K": 512,
+    "N": 128,
+    "K": 64,
     "rate": 0.5,
-    "num_iterations": 50,
-    "encoding_time": 0.16730833053588867,
-    "decoding_time": 0.9381866455078125,
-    "end_to_end_time": 1.100489854812622,
-    "encoding_throughput": 0.15301091056257143,
-    "decoding_throughput": 0.027286681304383182,
-    "end_to_end_throughput": 0.023262368015522374
+    "num_iterations": 200,
+    "encoding_time": 0.0580296516418457,
+    "decoding_time": 0.34041428565979004,
+    "end_to_end_time": 0.40930819511413574,
+    "encoding_throughput": 0.2205768885017708,
+    "decoding_throughput": 0.03760124218991302,
+    "end_to_end_throughput": 0.03127227881775178
   },
   "ldpc": {
-    "n": 504,
-    "k": 252,
+    "n": 120,
+    "k": 60,
     "rate": 0.5,
-    "num_iterations": 50,
-    "encoding_time": 0.7661380767822266,
-    "decoding_time": 16.40505623817444,
-    "end_to_end_time": 17.340582132339478,
-    "encoding_throughput": 0.016446121635045073,
-    "decoding_throughput": 0.0007680558857628235,
-    "end_to_end_throughput": 0.0007266192048132867
+    "num_iterations": 200,
+    "encoding_time": 0.3375372886657715,
+    "decoding_time": 33.545961141586304,
+    "end_to_end_time": 35.404940128326416,
+    "encoding_throughput": 0.035551627636265,
+    "decoding_throughput": 0.00035771817505398057,
+    "end_to_end_throughput": 0.00033893575180484956
   }
 }

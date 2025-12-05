@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 from typing import Dict, Tuple
 import time
+import matplotlib.pyplot as plt
 
 # 添加src到路径
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -90,7 +91,95 @@ def run_throughput_test(
     # Save results
     save_results(results, output_dir / "data" / "throughput_results.json")
     
+    # Plot throughput comparison
+    plot_throughput_comparison(results, output_dir)
+    
     return results
+
+
+def plot_throughput_comparison(results: Dict, output_dir: Path):
+    """
+    绘制吞吐量对比柱状图
+    
+    Args:
+        results: 包含吞吐量测试结果的字典
+        output_dir: 输出目录
+    """
+    # 设置字体
+    plt.rcParams['font.sans-serif'] = ['Arial']
+    plt.rcParams['axes.unicode_minus'] = False
+    
+    # 提取数据
+    polar_data = results['polar']
+    ldpc_data = results['ldpc']
+    
+    # 准备绘图数据
+    categories = ['Encoding', 'Decoding', 'End-to-End']
+    polar_throughput = [
+        polar_data['encoding_throughput'],
+        polar_data['decoding_throughput'],
+        polar_data['end_to_end_throughput']
+    ]
+    ldpc_throughput = [
+        ldpc_data['encoding_throughput'],
+        ldpc_data['decoding_throughput'],
+        ldpc_data['end_to_end_throughput']
+    ]
+    
+    # 创建图表
+    fig, ax = plt.subplots(figsize=(12, 7))
+    
+    x = np.arange(len(categories))
+    width = 0.35
+    
+    # 绘制柱状图
+    bars1 = ax.bar(x - width/2, polar_throughput, width, 
+                   label=f'Polar (N={polar_data["N"]}, K={polar_data["K"]})', 
+                   alpha=0.8, color='#3498db')
+    bars2 = ax.bar(x + width/2, ldpc_throughput, width, 
+                   label=f'LDPC (n={ldpc_data["n"]}, k={ldpc_data["k"]})', 
+                   alpha=0.8, color='#e74c3c')
+    
+    # 设置标签和标题
+    ax.set_xlabel('Operation Type', fontsize=13, fontweight='bold')
+    ax.set_ylabel('Throughput (Mbps)', fontsize=13, fontweight='bold')
+    ax.set_title(f'Polar Code vs LDPC Throughput Comparison\n(SNR={results["snr_db"]}dB, Iterations={results["num_iterations"]})', 
+                 fontsize=15, fontweight='bold', pad=20)
+    ax.set_xticks(x)
+    ax.set_xticklabels(categories, fontsize=12)
+    ax.legend(fontsize=11, loc='upper right')
+    ax.grid(axis='y', alpha=0.3, linestyle='--')
+    
+    # 在柱状图上添加数值标签
+    def add_value_labels(bars):
+        for bar in bars:
+            height = bar.get_height()
+            if height >= 0.001:
+                label = f'{height:.4f}'
+            else:
+                label = f'{height:.2e}'
+            ax.text(bar.get_x() + bar.get_width()/2., height,
+                    label,
+                    ha='center', va='bottom', fontsize=10, fontweight='bold')
+    
+    add_value_labels(bars1)
+    add_value_labels(bars2)
+    
+    # 调整布局
+    plt.tight_layout()
+    
+    # 保存图表
+    output_path = output_dir / "figures" / "throughput_comparison.png"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    print(f"\n  Saved throughput comparison plot: {output_path}")
+    plt.close()
+    
+    # 打印性能对比
+    print(f"\n  Performance Comparison:")
+    print(f"    Polar encoding is {polar_data['encoding_throughput']/ldpc_data['encoding_throughput']:.1f}x faster than LDPC")
+    print(f"    Polar decoding is {polar_data['decoding_throughput']/ldpc_data['decoding_throughput']:.1f}x faster than LDPC")
+    print(f"    Polar end-to-end is {polar_data['end_to_end_throughput']/ldpc_data['end_to_end_throughput']:.1f}x faster than LDPC")
 
 
 def measure_polar_throughput(

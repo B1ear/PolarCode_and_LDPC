@@ -71,11 +71,11 @@ PolarCode_and_LDPC/
 - **编码器**: 支持任意码长N(2的幂次)和信息长度K
   - Kronecker乘积高效编码
   - 支持CRC附加（用于CA-SCL）
-- **SC解码器**: ✅ 已实现并验证
+- **SC解码器**: 
   - 连续消除(Successive Cancellation)解码
   - 软判决LLR输入
   - 与polarcodes库性能一致
-- **SCL解码器**: ✅ 新增实现
+- **SCL解码器**: 
   - 连续消除列表(Successive Cancellation List)解码
   - 维护多个候选路径，提高解码性能
   - 支持可配置的列表大小(L)
