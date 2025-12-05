@@ -1,5 +1,5 @@
 """
-Third-party Library Wrappers Module
+第三方库封装模块
 """
 
 from .polar_wrapper import PolarLibWrapper

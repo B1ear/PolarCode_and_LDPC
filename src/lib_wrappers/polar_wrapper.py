@@ -1,8 +1,8 @@
 """
-Polar Code Library Wrapper
+Polar码库封装器
 
-Wraps the third-party `polarcodes` library (py-polar-codes) to provide
-a unified interface compatible with the project's own PolarEncoder/SCDecoder.
+封装第三方`polarcodes`库（py-polar-codes），提供
+与项目自有PolarEncoder/SCDecoder兼容的统一接口。
 """
 
 import numpy as np
@@ -17,19 +17,19 @@ except ImportError:
 
 class PolarLibWrapper:
     """
-    Wrapper around polarcodes library for Polar encoding/decoding.
+    polarcodes库的封装器，用于Polar编码/解码。
     
-    Provides encode/decode interface matching project's PolarEncoder/SCDecoder.
+    提供与项目的PolarEncoder/SCDecoder匹配的encode/decode接口。
     """
     
     def __init__(self, N: int, K: int, design_snr_db: float = 2.0):
         """
-        Initialize Polar library wrapper
+        初始化Polar库封装器
         
         Args:
-            N: Code length (must be power of 2)
-            K: Information bits length
-            design_snr_db: Design SNR for code construction (dB)
+            N: 码长（必须是2的幂次）
+            K: 信息位长度
+            design_snr_db: 码构造的设计SNR（dB）
         """
         if not POLARCODES_AVAILABLE:
             raise ImportError("polarcodes library not available. Install with: pip install py-polar-codes")
@@ -41,27 +41,27 @@ class PolarLibWrapper:
         self.K = K
         self.design_snr_db = design_snr_db
         
-        # Create PolarCode instance and construct frozen set
+        # 创建PolarCode实例并构造冻结集
         self.pc = PolarCode(N, K)
         Construct(self.pc, design_SNR=design_snr_db)
         
-        # Store frozen and info bit positions for reference
+        # 存储冻结位和信息位位置供参考
         self.frozen_bits = self.pc.frozen
         self.info_bits = np.setdiff1d(np.arange(N), self.frozen_bits)
     
     def encode(self, message: np.ndarray) -> np.ndarray:
         """
-        Encode message bits to codeword
+        将消息比特编码为码字
         
         Args:
-            message: Information bits, length K
+            message: 信息位，长度为K
             
         Returns:
-            Codeword bits, length N
+            码字比特，长度为N
         """
         assert len(message) == self.K, f"Message length must be {self.K}"
         
-        # Set message, encode, and get codeword
+        # 设置消息，编码，并获取码字
         self.pc.set_message(message.astype(int))
         Encode(self.pc)
         codeword = self.pc.get_codeword()
@@ -70,36 +70,36 @@ class PolarLibWrapper:
     
     def decode(self, llr: np.ndarray) -> np.ndarray:
         """
-        Decode LLR values to message bits using SC decoder
+        使用SC解码器将LLR值解码为消息比特
         
         Args:
-            llr: Log-likelihood ratios, length N
-                 (positive values indicate bit=0 more likely)
+            llr: 对数似然比，长度为N
+                 （正值表示bit=0更可能）
             
         Returns:
-            Decoded message bits, length K
+            解码后的消息比特，长度为K
         """
         assert len(llr) == self.N, f"LLR length must be {self.N}"
         
-        # Set likelihoods and decode
+        # 设置似然值并解码
         self.pc.likelihoods = llr.astype(float)
         Decode(self.pc, decoder_name='scd')
         
-        # Get decoded message
+        # 获取解码后的消息
         decoded_message = self.pc.message_received
         
         return decoded_message.astype(int)
     
     def get_code_rate(self) -> float:
-        """Get code rate K/N"""
+        """获取码率K/N"""
         return self.K / self.N
     
     def get_frozen_bits_positions(self) -> np.ndarray:
-        """Get frozen bit positions"""
+        """获取冻结位位置"""
         return self.frozen_bits.copy()
     
     def get_info_bits_positions(self) -> np.ndarray:
-        """Get information bit positions"""
+        """获取信息位位置"""
         return self.info_bits.copy()
     
     def __repr__(self) -> str:
@@ -107,14 +107,14 @@ class PolarLibWrapper:
 
 
 if __name__ == "__main__":
-    # Test code
+    # 测试代码
     print("Testing PolarLibWrapper...")
     
     if not POLARCODES_AVAILABLE:
         print("✗ polarcodes library not available")
         exit(1)
     
-    # Test 1: Basic encoding
+    # 测试1：基本编码
     print("\n1. Basic Encoding Test:")
     N, K = 8, 4
     wrapper = PolarLibWrapper(N, K)
@@ -127,15 +127,15 @@ if __name__ == "__main__":
     print(f"Message: {message}")
     print(f"Codeword: {codeword}")
     
-    # Test 2: No-noise decoding
+    # 测试2：无噪声解码
     print("\n2. No-Noise Decoding Test:")
-    # High-magnitude LLR
+    # 高幅度LLR
     llr = (1 - 2 * codeword.astype(float)) * 1000.0
     decoded = wrapper.decode(llr)
     print(f"Decoded: {decoded}")
     print(f"Match: {np.array_equal(message, decoded)}")
     
-    # Test 3: Multiple messages
+    # 测试3：多个消息
     print("\n3. Multiple Messages Test:")
     N, K = 16, 8
     wrapper = PolarLibWrapper(N, K)
@@ -154,7 +154,7 @@ if __name__ == "__main__":
     
     print(f"All correct: {all_correct}")
     
-    # Test 4: With AWGN channel
+    # 测试4：使用AWGN信道
     print("\n4. AWGN Channel Test:")
     import sys
     from pathlib import Path
@@ -182,7 +182,7 @@ if __name__ == "__main__":
     print(f"Frame errors: {errors}/{num_frames}")
     print(f"FER: {errors/num_frames:.4f}")
     
-    # Test 5: Different code sizes
+    # 测试5：不同码长
     print("\n5. Different Code Sizes Test:")
     configs = [(8, 4), (16, 8), (32, 16), (64, 32)]
     

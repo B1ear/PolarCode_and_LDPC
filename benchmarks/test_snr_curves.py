@@ -1,9 +1,9 @@
 """
-SNR Performance Curve Testing
+SNR性能曲线测试
 测试不同SNR下的BER/FER性能曲线
 
-Tests both Polar and LDPC codes across multiple code rates
-to generate standard performance curves.
+测试Polar码和LDPC码在多种码率下的性能，
+生成标准性能曲线。
 """
 import numpy as np
 import sys

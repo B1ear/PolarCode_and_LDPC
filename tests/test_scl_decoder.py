@@ -1,7 +1,7 @@
 """
-Test script for SCL decoder implementation.
+SCL解码器实现的测试脚本。
 
-Compares SC and SCL decoder performance.
+比较SC和SCL解码器性能。
 """
 
 import numpy as np
@@ -11,25 +11,25 @@ from src.channel.awgn import AWGNChannel
 
 
 def test_scl_basic():
-    """Test basic SCL decoder functionality."""
+    """测试基本的SCL解码器功能。"""
     print("=== Basic SCL Decoder Test ===\n")
     
     N, K = 16, 8
     list_sizes = [1, 2, 4, 8]
     
-    # Create encoder
+    # 创建编码器
     encoder = PolarEncoder(N, K)
     
-    # Generate random message
+    # 生成随机消息
     np.random.seed(42)
     message = np.random.randint(0, 2, K)
     print(f"Original message: {message}")
     
-    # Encode
+    # 编码
     codeword = encoder.encode(message)
     print(f"Codeword: {codeword}")
     
-    # Add noise
+    # 添加噪声
     snr_db = 2.0
     channel = AWGNChannel(snr_db)
     llr = channel.transmit(codeword, return_llr=True)
@@ -37,7 +37,7 @@ def test_scl_basic():
     print(f"\nSNR: {snr_db} dB")
     print(f"Received (first 10 LLRs): {llr[:10]}")
     
-    # Test with different list sizes
+    # 测试不同的列表大小
     print("\n--- Decoding Results ---")
     for L in list_sizes:
         decoder = SCLDecoder(N, K, list_size=L, frozen_bits=encoder.frozen_bits)
@@ -49,7 +49,7 @@ def test_scl_basic():
 
 
 def test_scl_vs_sc():
-    """Compare SCL and SC decoder error rates."""
+    """比较SCL与SC解码器的误码率"""
     print("=== SCL vs SC Performance Comparison ===\n")
     
     N, K = 64, 32

@@ -44,11 +44,11 @@ htmlcov/
 .tox/
 
 # Results
-results/*.png
-results/*.pdf
-results/*.csv
-results/*.json
-!results/.gitkeep
+# results/*.png
+# results/*.pdf
+# results/*.csv
+# results/*.json
+# !results/.gitkeep
 
 # Logs
 *.log

@@ -1,8 +1,8 @@
 """
-BER (Bit Error Rate) Simulation
+BER（误码率）仿真
 
-Performs comprehensive BER/FER simulation over SNR range for Polar and LDPC codes.
-Supports both self-implemented and third-party library implementations.
+对Polar码和LDPC码在SNR范围内进行全面的BER/FER仿真。
+支持自实现和第三方库实现。
 """
 
 import numpy as np
@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 import time
 
-# Add src to path
+# 添加src到路径
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from polar import PolarEncoder, SCDecoder
@@ -31,19 +31,19 @@ def run_ber_simulation(
     use_third_party: bool = False
 ) -> Dict:
     """
-    Run BER/FER simulation over SNR range
+    在SNR范围内运行BER/FER仿真
     
     Args:
-        snr_db_range: Array of SNR values in dB
-        num_frames: Maximum number of frames to test per SNR point
-        max_errors: Stop after this many frame errors
-        polar_config: Polar code configuration dictionary
-        ldpc_config: LDPC configuration dictionary
-        output_dir: Output directory for results
-        use_third_party: If True, also test third-party library implementations
+        snr_db_range: SNR值数组（dB）
+        num_frames: 每个SNR点测试的最大帧数
+        max_errors: 达到此帧错误数后停止
+        polar_config: Polar码配置字典
+        ldpc_config: LDPC配置字典
+        output_dir: 结果输出目录
+        use_third_party: 如果为True，也测试第三方库实现
         
     Returns:
-        Dictionary containing BER/FER results
+        包含BER/FER结果的字典
     """
     print(f"\n{'='*60}")
     print("BER/FER Simulation")
@@ -58,7 +58,7 @@ def run_ber_simulation(
         'ldpc': {}
     }
     
-    # Test Polar Code
+    # 测试Polar码
     print(f"\n{'-'*60}")
     print("Testing Polar Code (Self-Implementation)")
     print(f"{'-'*60}")
@@ -71,7 +71,7 @@ def run_ber_simulation(
         'fer': polar_fer.tolist()
     }
     
-    # Test LDPC
+    # 测试LDPC
     print(f"\n{'-'*60}")
     print("Testing LDPC (Self-Implementation)")
     print(f"{'-'*60}")
@@ -84,7 +84,7 @@ def run_ber_simulation(
         'fer': ldpc_fer.tolist()
     }
     
-    # Test third-party implementations if requested
+    # 如果需要，测试第三方库实现
     if use_third_party:
         try:
             from lib_wrappers import PolarLibWrapper, LDPCLibWrapper

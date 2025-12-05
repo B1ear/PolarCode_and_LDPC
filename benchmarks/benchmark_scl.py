@@ -1,5 +1,5 @@
 """
-Comprehensive performance benchmark for SCL decoder.
+SCL译码器的综合性能基准测试
 """
 
 import numpy as np
@@ -10,7 +10,7 @@ from src.channel.awgn import AWGNChannel
 
 
 def ber_simulation(N, K, snr_range, list_sizes, n_trials=500):
-    """Run BER simulation for different list sizes."""
+    """运行不同列表大小下的误比特率（BER）仿真"""
     print(f"=== BER Simulation: N={N}, K={K}, trials={n_trials} ===\n")
     
     encoder = PolarEncoder(N, K)
@@ -68,7 +68,7 @@ def ber_simulation(N, K, snr_range, list_sizes, n_trials=500):
 
 
 def frame_error_rate_simulation(N, K, snr_range, list_sizes, n_trials=500):
-    """Run FER simulation for different list sizes."""
+    """运行不同列表大小下的帧错误率（FER）仿真"""
     print(f"=== FER Simulation: N={N}, K={K}, trials={n_trials} ===\n")
     
     encoder = PolarEncoder(N, K)

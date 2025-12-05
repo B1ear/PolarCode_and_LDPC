@@ -1,7 +1,7 @@
 """
-Throughput Test
+吞吐量测试
 
-Measures encoding and decoding throughput (bits/second) for Polar and LDPC codes.
+测量Polar码和LDPC码的编码和解码吞吐量（比特/秒）。
 """
 
 import numpy as np
@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Dict, Tuple
 import time
 
-# Add src to path
+# 添加src到路径
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from polar import PolarEncoder, SCDecoder
@@ -27,17 +27,17 @@ def run_throughput_test(
     snr_db: float = 3.0
 ) -> Dict:
     """
-    Measure encoding and decoding throughput
+    测量编码和解码吞吐量
     
     Args:
-        polar_config: Polar code configuration
-        ldpc_config: LDPC configuration
-        output_dir: Output directory for results
-        num_iterations: Number of encode/decode cycles for timing
-        snr_db: SNR for channel (affects decode complexity)
+        polar_config: Polar码配置
+        ldpc_config: LDPC配置
+        output_dir: 结果输出目录
+        num_iterations: 用于计时的编码/解码循环次数
+        snr_db: 信道SNR（影响解码复杂度）
         
     Returns:
-        Dictionary containing throughput results
+        包含吞吐量结果的字典
     """
     print(f"\n{'='*60}")
     print("Throughput Test")

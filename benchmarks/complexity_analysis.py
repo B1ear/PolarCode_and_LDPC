@@ -1,7 +1,7 @@
 """
-Complexity Analysis
+复杂度分析
 
-Estimates computational complexity (operations count, memory usage) for Polar and LDPC codes.
+估算Polar码和LDPC码的计算复杂度（操作数、内存使用）。
 """
 
 import numpy as np
@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Dict
 import matplotlib.pyplot as plt
 
-# Add src to path
+# 添加src到路径
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from utils.visualization import save_results
@@ -22,15 +22,15 @@ def analyze_complexity(
     output_dir: Path
 ) -> Dict:
     """
-    Analyze computational complexity of Polar and LDPC implementations
+    分析Polar码和LDPC实现的计算复杂度
     
     Args:
-        polar_config: Polar code configuration
-        ldpc_config: LDPC configuration
-        output_dir: Output directory for results
+        polar_config: Polar码配置
+        ldpc_config: LDPC配置
+        output_dir: 结果输出目录
         
     Returns:
-        Dictionary containing complexity estimates
+        包含复杂度估算的字典
     """
     print(f"\n{'='*60}")
     print("Complexity Analysis")
@@ -41,7 +41,7 @@ def analyze_complexity(
         'ldpc': {}
     }
     
-    # Analyze Polar Code complexity
+    # 分析Polar码复杂度
     print(f"\n{'-'*60}")
     print("Analyzing Polar Code Complexity")
     print(f"{'-'*60}")
@@ -49,7 +49,7 @@ def analyze_complexity(
     polar_complexity = analyze_polar_complexity(polar_config)
     results['polar'] = polar_complexity
     
-    # Analyze LDPC complexity
+    # 分析LDPC复杂度
     print(f"\n{'-'*60}")
     print("Analyzing LDPC Complexity")
     print(f"{'-'*60}")
@@ -57,7 +57,7 @@ def analyze_complexity(
     ldpc_complexity = analyze_ldpc_complexity(ldpc_config)
     results['ldpc'] = ldpc_complexity
     
-    # Print summary
+    # 打印摘要
     print(f"\n{'='*60}")
     print("Complexity Summary")
     print(f"{'='*60}")
@@ -74,17 +74,17 @@ def analyze_complexity(
     print(f"  Encoding Memory:      {ldpc_complexity['encoding_memory']:,} bits")
     print(f"  Decoding Memory:      {ldpc_complexity['decoding_memory']:,} bits")
     
-    # Plot comparison
+    # 绘制对比图
     plot_complexity_comparison(results, output_dir)
     
-    # Save results
+    # 保存结果
     save_results(results, output_dir / "data" / "complexity_results.json")
     
     return results
 
 
 def analyze_polar_complexity(config: Dict) -> Dict:
-    """Analyze Polar code complexity"""
+    """分析Polar码复杂度"""
     
     N = config['encoding']['N']
     K = config['encoding']['K']
@@ -92,11 +92,11 @@ def analyze_polar_complexity(config: Dict) -> Dict:
     
     print(f"Polar: N={N}, K={K}, n=log2(N)={n}")
     
-    # Encoding Complexity
-    # Polar encoding: O(N log N) XOR operations
-    # Each stage has N/2 butterfly operations (2 XORs each)
-    # There are log2(N) stages
-    encoding_ops = N * n  # Total XOR operations
+    # 编码复杂度
+    # Polar编码: O(N log N) 异或操作
+    # 每个阶段有N/2个蝶形操作（每个2次异或）
+    # 共有log2(N)个阶段
+    encoding_ops = N * n  # 总异或操作数
     
     print(f"\nEncoding Complexity:")
     print(f"  Algorithm: Successive Butterfly (iterative)")
@@ -105,17 +105,17 @@ def analyze_polar_complexity(config: Dict) -> Dict:
     print(f"  Total XOR operations: {encoding_ops}")
     print(f"  Time Complexity: O(N log N)")
     
-    # Encoding Memory
-    # Need to store: input vector (N), output vector (N)
+    # 编码内存
+    # 需要存储: 输入向量(N), 输出向量(N)
     encoding_memory = 2 * N  # bits
     
     print(f"  Memory: {encoding_memory} bits ({encoding_memory/8:.0f} bytes)")
     
-    # Decoding Complexity (SC Decoder - hard decision + inverse transform)
-    # Hard decision: N comparisons
-    # Inverse transform: N log N XORs (same as encoding)
-    decoding_ops_hard = N  # comparisons
-    decoding_ops_transform = N * n  # XORs for inverse transform
+    # 解码复杂度（SC解码器 - 硬判决 + 逆变换）
+    # 硬判决: N次比较
+    # 逆变换: N log N次异或（与编码相同）
+    decoding_ops_hard = N  # 比较次数
+    decoding_ops_transform = N * n  # 逆变换的异或次数
     decoding_ops = decoding_ops_hard + decoding_ops_transform
     
     print(f"\nDecoding Complexity (SC - Hard Decision + Inverse Transform):")
@@ -124,16 +124,16 @@ def analyze_polar_complexity(config: Dict) -> Dict:
     print(f"  Total operations: {decoding_ops}")
     print(f"  Time Complexity: O(N log N)")
     
-    # Decoding Memory
-    # Need: received LLRs (N), decoded bits (N)
-    decoding_memory = 2 * N  # bits
+    # 解码内存
+    # 需要: 接收LLR(N), 解码比特(N)
+    decoding_memory = 2 * N  # 比特
     
     print(f"  Memory: {decoding_memory} bits ({decoding_memory/8:.0f} bytes)")
     
-    # SCL Decoder complexity (for reference, even though we don't use it)
-    L = 8  # typical list size
-    scl_ops = L * N * n  # L times SC complexity
-    scl_memory = L * 2 * N  # L copies of SC memory
+    # SCL解码器复杂度（供参考，虽然我们不使用它）
+    L = 8  # 典型列表大小
+    scl_ops = L * N * n  # L倍SC复杂度
+    scl_memory = L * 2 * N  # L份SC内存
     
     print(f"\nSCL Decoder Complexity (L={L}, for reference):")
     print(f"  Operations: {scl_ops:,} (L × SC complexity)")
@@ -156,7 +156,7 @@ def analyze_polar_complexity(config: Dict) -> Dict:
 
 
 def analyze_ldpc_complexity(config: Dict) -> Dict:
-    """Analyze LDPC complexity"""
+    """分析LDPC复杂度"""
     
     n = config['encoding']['n']
     k = config['encoding']['k']
@@ -167,19 +167,19 @@ def analyze_ldpc_complexity(config: Dict) -> Dict:
     
     print(f"LDPC: n={n}, k={k}, m={m}, dv={dv}, dc={dc}")
     
-    # Encoding Complexity
-    # For systematic code: O(m * k) operations
-    # Need to compute parity bits: p = H2^-1 * H1 * m
-    encoding_ops = m * k  # Matrix-vector multiplication
+    # 编码复杂度
+    # 对于系统码: O(m * k) 操作
+    # 需要计算校验位: p = H2^-1 * H1 * m
+    encoding_ops = m * k  # 矩阵向量乘法
     
-    print(f"\nEncoding Complexity:")
-    print(f"  Algorithm: Systematic encoding (H * c = 0)")
-    print(f"  Matrix-vector mult: {m} × {k}")
-    print(f"  Operations: ~{encoding_ops}")
-    print(f"  Time Complexity: O(m × k)")
+    print(f"\n编码复杂度:")
+    print(f"  算法: 系统码编码 (H * c = 0)")
+    print(f"  矩阵向量乘法: {m} × {k}")
+    print(f"  操作数: ~{encoding_ops}")
+    print(f"  时间复杂度: O(m × k)")
     
-    # Encoding Memory
-    # Need: message (k), codeword (n), H matrix (m × n)
+    # 编码内存
+    # 需要: 消息(k), 码字(n), H矩阵(m × n)
     encoding_memory = k + n + (m * n)
     
     print(f"  Memory: ~{encoding_memory} bits ({encoding_memory/8:.0f} bytes)")
@@ -187,14 +187,14 @@ def analyze_ldpc_complexity(config: Dict) -> Dict:
     print(f"    Codeword: {n} bits")
     print(f"    H matrix: {m}×{n} = {m*n} bits")
     
-    # Decoding Complexity (BP Decoder)
-    # Per iteration:
-    #   - Variable node update: O(n × dv) operations
-    #   - Check node update: O(m × dc) operations
-    # Total: O(max_iter × (n × dv + m × dc))
+    # 解码复杂度（BP解码器）
+    # 每次迭代:
+    #   - 变量节点更新: O(n × dv) 操作
+    #   - 校验节点更新: O(m × dc) 操作
+    # 总计: O(max_iter × (n × dv + m × dc))
     
-    ops_per_var_node = dv * 2  # Sum and subtract for each edge
-    ops_per_check_node = dc * 3  # Product, min, sign for each edge
+    ops_per_var_node = dv * 2  # 每条边的加法和减法
+    ops_per_check_node = dc * 3  # 每条边的乘积、最小值、符号
     
     ops_per_iter = n * ops_per_var_node + m * ops_per_check_node
     decoding_ops = max_iter * ops_per_iter
@@ -209,10 +209,10 @@ def analyze_ldpc_complexity(config: Dict) -> Dict:
     print(f"  Total operations: ~{decoding_ops:,}")
     print(f"  Time Complexity: O(I × (n × dv + m × dc))")
     
-    # Decoding Memory
-    # Need: LLRs (n), messages v2c (n × dv), messages c2v (m × dc)
+    # 解码内存
+    # 需要: LLR(n), 消息v2c(n × dv), 消息c2v(m × dc)
     num_edges = n * dv  # = m * dc
-    decoding_memory = n + 2 * num_edges  # LLRs + two message arrays
+    decoding_memory = n + 2 * num_edges  # LLR + 两个消息数组
     
     print(f"  Memory: ~{decoding_memory} bits ({decoding_memory/8:.0f} bytes)")
     print(f"    LLRs: {n} values")
@@ -236,14 +236,14 @@ def analyze_ldpc_complexity(config: Dict) -> Dict:
 
 
 def plot_complexity_comparison(results: Dict, output_dir: Path):
-    """Plot complexity comparison"""
+    """绘制复杂度对比图"""
     
     polar = results['polar']
     ldpc = results['ldpc']
     
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
     
-    # Operations comparison
+    # 操作数对比
     ax = axes[0]
     
     categories = ['Encoding', 'Decoding']
@@ -264,13 +264,13 @@ def plot_complexity_comparison(results: Dict, output_dir: Path):
     ax.legend()
     ax.grid(axis='y', alpha=0.3)
     
-    # Add value labels on bars
+    # 在柱状图上添加数值标签
     for i, v in enumerate(polar_ops):
         ax.text(i - width/2, v, f'{v:,}', ha='center', va='bottom', fontsize=9)
     for i, v in enumerate(ldpc_ops):
         ax.text(i + width/2, v, f'{v:,}', ha='center', va='bottom', fontsize=9)
     
-    # Memory comparison
+    # 内存对比
     ax = axes[1]
     
     polar_mem = [polar['encoding_memory'], polar['decoding_memory']]
@@ -287,7 +287,7 @@ def plot_complexity_comparison(results: Dict, output_dir: Path):
     ax.legend()
     ax.grid(axis='y', alpha=0.3)
     
-    # Add value labels on bars
+    # 在柱状图上添加数值标签
     for i, v in enumerate(polar_mem):
         ax.text(i - width/2, v, f'{v:,}', ha='center', va='bottom', fontsize=9)
     for i, v in enumerate(ldpc_mem):
@@ -315,7 +315,7 @@ if __name__ == "__main__":
         'decoding': {'max_iterations': 50}
     }
     
-    # Use absolute path relative to this file
+    # 使用相对于此文件的绝对路径
     output_dir = Path(__file__).parent.parent / "results"
     output_dir.mkdir(exist_ok=True)
     (output_dir / "figures").mkdir(exist_ok=True)

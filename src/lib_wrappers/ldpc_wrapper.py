@@ -1,8 +1,7 @@
 """
-LDPC Library Wrapper
+LDPC 库封装器
 
-Wraps the third-party `pyldpc` library to provide a unified interface
-compatible with the project's own LDPCEncoder/BPDecoder.
+封装第三方 pyldpc 库，提供一个统一的接口，以兼容项目自有的 LDPCEncoder / BPDecoder
 """
 
 import numpy as np
@@ -18,21 +17,21 @@ except ImportError:
 
 class LDPCLibWrapper:
     """
-    Wrapper around pyldpc library for LDPC encoding/decoding.
+    对pyldpc库的封装，用于LDPC编码与解码。
     
-    Provides encode/decode interface matching project's LDPCEncoder/BPDecoder.
+    提供与项目中LDPCEncoder/BPDecoder接口一致的encode/decode方法
     """
     
     def __init__(self, n: int, k: int, dv: int = 3, dc: int = 6, seed: Optional[int] = None):
         """
-        Initialize LDPC library wrapper
+        初始化LDPC库封装器
         
         Args:
-            n: Code length (codeword length)
-            k: Information bits length
-            dv: Variable node degree (number of checks per bit)
-            dc: Check node degree (number of bits per check)
-            seed: Random seed for matrix construction
+            n: 码长（编码后码字长度）
+            k: 信息位长度
+            dv: 变量节点度数（每个比特参与的校验方程数量）
+            dc: 校验节点度数（每个校验方程涉及的比特数量）
+            seed: 用于构造校验矩阵的随机种子
         """
         if not PYLDPC_AVAILABLE:
             raise ImportError("pyldpc library not available. Install with: pip install pyldpc")
@@ -42,18 +41,18 @@ class LDPCLibWrapper:
         
         self.n = n
         self.k = k
-        self.m = n - k  # Number of parity checks
+        self.m = n - k  # 校验位数量
         self.dv = dv
         self.dc = dc
         self.seed = seed
         
-        # Create H and G matrices using pyldpc
-        # H: (m, n) parity-check matrix
-        # G: (n, k) coding matrix (transposed form in pyldpc)
+        # 使用pyldpc创建H和G矩阵
+        # H: (m, n) 校验矩阵
+        # G: (n, k) 生成矩阵（pyldpc中的转置形式）
         self.H, self.G = pyldpc.make_ldpc(n, dv, dc, systematic=True, sparse=False, seed=seed)
         
-        # Extract actual k from G shape
-        # G shape is (n, k_actual) where k_actual may differ slightly from input k
+        # 从G的形状提取实际的k
+        # G的形状是(n, k_actual)，其中k_actual可能与输入的k略有不同
         self.k_actual = self.G.shape[1]
         
         if self.k_actual != k:
@@ -62,17 +61,17 @@ class LDPCLibWrapper:
     
     def encode(self, message: np.ndarray) -> np.ndarray:
         """
-        Encode message bits to codeword
+        将消息比特编码为码字
         
         Args:
-            message: Information bits, length k
+            message: 信息位，长度为k
             
         Returns:
-            Codeword bits, length n
+            码字比特，长度为n
         """
         assert len(message) == self.k, f"Message length must be {self.k}"
         
-        # Use pyldpc.utils.binaryproduct for pure encoding without noise
+        # 使用pyldpc.utils.binaryproduct进行纯编码（无噪声）
         # codeword = G @ message (mod 2)
         codeword = pyldpc.utils.binaryproduct(self.G, message)
         
@@ -80,60 +79,60 @@ class LDPCLibWrapper:
     
     def decode(self, llr: np.ndarray, max_iter: int = 50) -> np.ndarray:
         """
-        Decode LLR values to message bits using BP decoder
+        使用BP解码器将LLR值解码为消息比特
         
         Args:
-            llr: Log-likelihood ratios, length n
-                 (positive values indicate bit=0 more likely)
-            max_iter: Maximum BP iterations
+            llr: 对数似然比，长度为n
+                 （正值表示bit=0更可能）
+            max_iter: 最大BP迭代次数
             
         Returns:
-            Decoded message bits, length k
+            解码后的消息比特，长度为k
         """
         assert len(llr) == self.n, f"LLR length must be {self.n}"
         
-        # Convert LLR to pyldpc's expected channel output format
-        # pyldpc.decode expects noisy symbols y = BPSK + noise
-        # Our LLR = 2*y/sigma^2, so y = LLR * sigma^2 / 2
-        # For decoding, we need to provide SNR and y
-        # We'll compute an effective SNR from LLR magnitude
+        # 将LLR转换为pyldpc期望的信道输出格式
+        # pyldpc.decode期望噪声符号 y = BPSK + noise
+        # 我们的LLR = 2*y/sigma^2，所以 y = LLR * sigma^2 / 2
+        # 对于解码，我们需要提供SNR和y
+        # 我们将从LLR幅度计算有效SNR
         
-        # Use a heuristic: assume average LLR magnitude corresponds to SNR
-        # LLR = 2*y/sigma^2, and for BPSK |y| ~ 1 + noise
-        # Estimate SNR from average LLR magnitude
+        # 使用启发式方法：假设平均LLR幅度对应于SNR
+        # LLR = 2*y/sigma^2，对于BPSK |y| ~ 1 + noise
+        # 从平均LLR幅度估计SNR
         avg_llr_mag = np.mean(np.abs(llr))
         
-        # Rough heuristic: SNR_linear ~ avg_llr_mag / 4
+        # 粗略启发式：SNR_linear ~ avg_llr_mag / 4
         # SNR_dB = 10 * log10(SNR_linear)
         snr_linear = max(avg_llr_mag / 4.0, 0.1)
         snr_db = 10.0 * np.log10(snr_linear)
         
-        # Convert LLR back to channel symbols
-        # For pyldpc: LLR = 2*y/var, var = 10^(-snr/10)
+        # 将LLR转换回信道符号
+        # 对于pyldpc: LLR = 2*y/var, var = 10^(-snr/10)
         var = 10.0 ** (-snr_db / 10.0)
         y = llr * var / 2.0
         
-        # Decode using pyldpc (suppress convergence warnings - expected in low SNR)
-        # Returns decoded codeword (length n)
+        # 使用pyldpc解码（抑制收敛警告 - 在低SNR下是预期的）
+        # 返回解码后的码字（长度n）
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', message='.*convergence.*')
             decoded_codeword = pyldpc.decode(self.H, y, snr_db, maxiter=max_iter)
         
-        # Extract message bits using pyldpc.get_message
+        # 使用pyldpc.get_message提取消息比特
         decoded_message = pyldpc.get_message(self.G, decoded_codeword)
         
         return decoded_message.astype(int)
     
     def get_code_rate(self) -> float:
-        """Get code rate k/n"""
+        """获取码率k/n"""
         return self.k / self.n
     
     def get_parity_check_matrix(self) -> np.ndarray:
-        """Get parity-check matrix H"""
+        """获取校验矩阵H"""
         return self.H.copy()
     
     def get_generator_matrix(self) -> np.ndarray:
-        """Get generator matrix G"""
+        """获取生成矩阵G"""
         return self.G.copy()
     
     def __repr__(self) -> str:
@@ -141,14 +140,14 @@ class LDPCLibWrapper:
 
 
 if __name__ == "__main__":
-    # Test code
+    # 测试代码
     print("Testing LDPCLibWrapper...")
     
     if not PYLDPC_AVAILABLE:
         print("✗ pyldpc library not available")
         exit(1)
     
-    # Test 1: Basic encoding
+    # 测试1：基本编码
     print("\n1. Basic Encoding Test:")
     n, k = 12, 6
     wrapper = LDPCLibWrapper(n, k, dv=3, dc=6, seed=42)
@@ -157,27 +156,27 @@ if __name__ == "__main__":
     print(f"G shape: {wrapper.G.shape}")
     print(f"Actual k: {wrapper.k}")
     
-    # Use actual k from wrapper
+    # 使用wrapper的实际k值
     k_actual = wrapper.k
     message = np.random.randint(0, 2, k_actual)
     codeword = wrapper.encode(message)
     print(f"Message: {message}")
     print(f"Codeword length: {len(codeword)}")
     
-    # Verify codeword
+    # 验证码字
     syndrome = (wrapper.H @ codeword) % 2
     valid = np.all(syndrome == 0)
     print(f"Valid codeword (H*c=0): {valid}")
     
-    # Test 2: No-noise decoding
+    # 测试2：无噪声解码
     print("\n2. No-Noise Decoding Test:")
-    # High-magnitude LLR
+    # 高幅度LLR
     llr = (1 - 2 * codeword.astype(float)) * 100.0
     decoded = wrapper.decode(llr, max_iter=50)
     print(f"Decoded length: {len(decoded)}")
     print(f"Match: {np.array_equal(message, decoded)}")
     
-    # Test 3: Multiple messages
+    # 测试3：多个消息
     print("\n3. Multiple Messages Test:")
     n, k = 24, 12
     wrapper = LDPCLibWrapper(n, k, dv=3, dc=6, seed=42)
@@ -197,7 +196,7 @@ if __name__ == "__main__":
     
     print(f"All correct: {all_correct}")
     
-    # Test 4: With AWGN channel
+    # 测试4：使用AWGN信道
     print("\n4. AWGN Channel Test:")
     import sys
     from pathlib import Path
@@ -226,7 +225,7 @@ if __name__ == "__main__":
     print(f"Frame errors: {errors}/{num_frames}")
     print(f"FER: {errors/num_frames:.4f}")
     
-    # Test 5: Different code sizes
+    # 测试5：不同码长
     print("\n5. Different Code Sizes Test:")
     configs = [(24, 12), (48, 24), (96, 48)]
     
