@@ -9,16 +9,14 @@ PolarCode_and_LDPC/
 ├── README.md                      # 项目说明文档
 ├── ARCHITECTURE.md                # 架构设计文档
 ├── USAGE_GUIDE.md                 # 使用指南
-├── EXPERIMENT_REPORT.md           # 实验报告
 ├── requirements.txt               # Python依赖
-├── setup.py                       # 安装配置
 ├── config/                        # 配置文件
 │   ├── polar_config.yaml         # Polar Code配置
 │   └── ldpc_config.yaml          # LDPC配置
 ├── src/                          # 源代码目录
 │   ├── polar/                    # Polar Code实现
 │   │   ├── encoder.py           # Polar编码器
-│   │   ├── decoder.py           # SC解码器
+│   │   ├── decoder.py           # SC/SCL解码器
 │   │   ├── construction.py      # 码构造算法
 │   │   └── utils.py             # 工具函数
 │   ├── ldpc/                     # LDPC实现
@@ -37,20 +35,19 @@ PolarCode_and_LDPC/
 │       ├── metrics.py           # 性能指标计算
 │       └── visualization.py     # 可视化工具
 ├── tests/                        # 单元测试
-│   ├── test_polar.py            # Polar测试
-│   ├── test_ldpc.py             # LDPC测试
-│   └── test_correctness.py      # 正确性验证
+│   └── test_scl_decoder.py      # SCL解码器测试
 ├── benchmarks/                   # 性能测试
+│   ├── README.md                # 测试系统说明
 │   ├── run_benchmark.py         # 主测试脚本
 │   ├── ber_simulation.py        # BER/FER仿真
 │   ├── throughput_test.py       # 吞吐量测试
 │   ├── complexity_analysis.py   # 复杂度分析
 │   ├── test_code_parameters.py  # 码长码率测试
-│   └── test_snr_curves.py       # SNR性能曲线
-├── debug_scripts/                # 调试工具（供开发参考）
+│   ├── test_snr_curves.py       # SNR性能曲线
+│   └── benchmark_scl.py         # SCL解码器性能测试
 ├── docs/                         # 详细文档
-│   ├── SNR_CURVES_TEST_SUMMARY.md       # SNR测试报告
-│   ├── CODE_PARAMS_TEST_SUMMARY_V2.md   # 参数测试报告
+│   ├── SCL_DECODER_README.md    # SCL解码器文档
+│   ├── SNR_CURVES_TEST_SUMMARY.md  # SNR测试报告
 │   └── ...                      # 其他技术文档
 └── results/                      # 测试结果
     ├── figures/                 # BER/FER曲线图
@@ -58,6 +55,15 @@ PolarCode_and_LDPC/
     ├── code_params/             # 码长码率测试结果
     └── snr_curves/              # SNR曲线测试结果
 ```
+
+## 最新更新
+
+### v2.0 - SCL解码器实现
+- ✅ 实现完整的SCL (Successive Cancellation List) 解码器
+- ✅ 支持可配置的列表大小，提升解码性能
+- ✅ 添加SCL性能测试和对比工具
+- ✅ 优化项目结构，移除冗余代码
+- ✅ 完善文档和使用示例
 
 ## 功能特性
 
@@ -69,6 +75,12 @@ PolarCode_and_LDPC/
   - 连续消除(Successive Cancellation)解码
   - 软判决LLR输入
   - 与polarcodes库性能一致
+- **SCL解码器**: ✅ 新增实现
+  - 连续消除列表(Successive Cancellation List)解码
+  - 维护多个候选路径，提高解码性能
+  - 支持可配置的列表大小(L)
+  - 可选CRC辅助路径选择
+  - 详见 [SCL解码器文档](docs/SCL_DECODER_README.md)
 - **码构造**: 
   - 使用polarcodes库预计算冻结位集合
   - 基于Bhattacharyya参数的最优构造
@@ -128,9 +140,6 @@ cd PolarCode_and_LDPC
 
 # 安装依赖
 pip install -r requirements.txt
-
-# 安装项目(开发模式)
-pip install -e .
 ```
 
 ## 快速开始
@@ -138,12 +147,12 @@ pip install -e .
 ### 基本使用
 
 ```python
-from src.polar import PolarEncoder, SCDecoder
+from src.polar import PolarEncoder, SCDecoder, SCLDecoder
 from src.ldpc import LDPCEncoder, BPDecoder
 from src.channel import AWGNChannel
 import numpy as np
 
-# Polar Code示例
+# Polar Code示例 - SC解码器
 from src.lib_wrappers import PolarLibWrapper
 
 # 使用库生成冻结位集合（最优构造）
@@ -161,8 +170,12 @@ codeword = polar_enc.encode(message)
 channel = AWGNChannel(snr_db=3.0)
 llr = channel.transmit(codeword, return_llr=True)
 
-# 解码（使用LLR软判决）
+# SC解码（使用LLR软判决）
 decoded = polar_dec.decode(llr)
+
+# Polar Code示例 - SCL解码器（更好的性能）
+scl_dec = SCLDecoder(N, K, list_size=8, frozen_bits=frozen_bits)
+decoded_scl = scl_dec.decode(llr)
 
 # LDPC示例
 from src.lib_wrappers import LDPCLibWrapper
@@ -200,16 +213,19 @@ python benchmarks/test_snr_curves.py
 # 4. 单独的吞吐量和复杂度测试
 python benchmarks/throughput_test.py
 python benchmarks/complexity_analysis.py
+
+# 5. SCL解码器性能测试
+python benchmarks/benchmark_scl.py
 ```
 
 ### 运行测试
 
 ```bash
-# 运行所有测试
-pytest tests/
+# 运行SCL解码器测试
+python tests/test_scl_decoder.py
 
-# 正确性验证
-pytest tests/test_correctness.py -v
+# 或使用pytest
+pytest tests/test_scl_decoder.py -v
 ```
 
 ## 配置
@@ -251,11 +267,10 @@ pytest tests/test_correctness.py -v
 
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - 架构设计文档
 - **[USAGE_GUIDE.md](USAGE_GUIDE.md)** - 使用指南和常见问题
-- **[docs/](docs/)** - 测试报告、优化记录和技术文档
+- **[benchmarks/README.md](benchmarks/README.md)** - 性能测试系统说明
+- **[docs/](docs/)** - 测试报告和技术文档
+  - [SCL解码器实现](docs/SCL_DECODER_README.md)
   - [SNR性能曲线测试](docs/SNR_CURVES_TEST_SUMMARY.md)
-  - [码长码率参数测试](docs/CODE_PARAMS_TEST_SUMMARY_V2.md)
-  - [LDPC优化详解](docs/LDPC_OPTIMIZATION.md)
-   - 矩阵稀疏度
 
 ## 许可
 
